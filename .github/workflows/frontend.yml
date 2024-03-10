@@ -15,7 +15,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Install dependencies
-        run: npm ci
+
+      - name: Manage NPM Dependencies
+        # Utiliza la acción que hemos creado. Importante que no vaya con ""
+        uses: ./.github/actions/cache-node-dependencies
+        with:
+          # Pasamos los valores para los parámetros de la action
+          app-name: "react-app"
+          working-directory: "./front-end-app"
+
       - name: Build
         run: npm run build
