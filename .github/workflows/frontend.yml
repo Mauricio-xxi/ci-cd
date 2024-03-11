@@ -20,11 +20,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Manage NPM Dependencies
         uses: ./.github/actions/cache-node-dependencies
         with:
           app-name: "react-app"
-          working-directory: "./front-end-app"
 
       - name: Build
         run: npm run build
@@ -49,22 +49,25 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase GitHub Actor
+        id: lowercase_actor
+        run: echo "ACTOR_LOWERCASE=$(echo ${{ github.actor }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./front-end-app
+          context: .
           push: true
-          tags: ghcr.io/${{ lower(github.actor) }}/ci-cd-example-front:latest
+          tags: ghcr.io/${{ env.ACTOR_LOWERCASE }}/ci-cd-example-front:latest
 
-      - name: Install Netlify # Instalamos la CLI de Netlify para poder hacer el deploy manual
+      - name: Install Netlify CLI
         run: npm install netlify-cli@17.10.1 -g
 
       - name: Deploy to Netlify
-        id: netlify_deploy
-        # Usamos el comando netlify deploy de la carpeta dist con el token de autenticación y el id del sitio
         run: |
           netlify deploy \
-            --dir dist \
+            --dir ./front-end-app/build \
             --site ${{ secrets.NETLIFY_SITE_ID }} \
             --auth ${{ secrets.NETLIFY_API_TOKEN }} \
             --prod
