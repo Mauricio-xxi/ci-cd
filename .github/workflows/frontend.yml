@@ -54,7 +54,7 @@ jobs:
         with:
           context: ./front-end-app
           push: true
-          tags: ghcr.io/${{ github.actor }}/ci-cd-example-front:latest
+          tags: ghcr.io/${{ lower(github.actor) }}/ci-cd-example-front:latest
 
       - name: Install Netlify # Instalamos la CLI de Netlify para poder hacer el deploy manual
         run: npm install netlify-cli@17.10.1 -g
